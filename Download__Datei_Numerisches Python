@@ -1,0 +1,31 @@
+import requests
+from bs4 import BeautifulSoup
+import os
+
+# Hier ist Link, das wir die alle Übungsdatei in Buch 'Numerisches PYTHON'
+url = 'https://www.python-kurs.eu/numbuch/data/'
+
+# HTML der Webseite parsen
+response = requests.get(url)
+soup = BeautifulSoup(response.text, 'html.parser')
+
+# Erstellen eines Verzeichnisses, in dem die heruntergeladenen Dateien gespeichert werden
+os.makedirs('downloaded_files', exist_ok=True)
+
+# Durchlaufen aller Links (<a> Tags) auf der Webseite
+for link in soup.find_all('a'):
+    file_url = link.get('href')  # Extrahieren des Links (href Attribut)
+
+    
+# Überprüfen, ob die Datei eine bestimmte Erweiterung hat (.txt, .csv, .pdf)
+    if file_url.endswith(('.txt', '.csv', '.pdf')):
+        full_url = os.path.join(url, file_url)  # Erstellen der vollständigen URL
+        print(f"Downloading {full_url}")  # Ausgabe des Downloadfortschritts
+        
+        # Herunterladen der Datei
+        file_response = requests.get(full_url)
+        # Speichern der heruntergeladenen Datei im erstellten Verzeichnis
+        with open(os.path.join('downloaded_files', file_url), 'wb') as f:
+            f.write(file_response.content)
+
+print("Alle Dateien wurden erfolgreich heruntergeladen!")
